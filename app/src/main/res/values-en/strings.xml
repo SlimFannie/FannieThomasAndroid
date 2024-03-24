@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Our garden</string>
+    <string name="sous_titre">But not yours...</string>
+    <string name="_switch">Switch</string>
+    <string name="degage">None of this is your business!</string>
+    <string name="heure">Time in our community :</string>
+    <string name="temperature">Our temperature :</string>
+</resources>
