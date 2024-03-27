@@ -3,6 +3,9 @@
     <string name="sous_titre">Mais pas le vôtre...</string>
     <string name="_switch">Souitche</string>
     <string name="degage">Toute ça, c\'est pas de tes affaires!</string>
-    <string name="heure">Heure dans notre communauté :</string>
-    <string name="temperature">Notre température :</string>
+    <string name="temperature">Température dans notre communauté :</string>
+    <string name="humidity">Humidité de l\'air de notre communauté :</string>
+    <string name="plantes">Nos plantes sont </string>
+    <string name="seche">sèches !</string>
+    <string name="mouille">humides !</string>
 </resources>

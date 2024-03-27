@@ -3,8 +3,12 @@ package com.example.fanniethomasjardin;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
+import android.view.animation.BounceInterpolator;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
@@ -14,32 +18,41 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import com.hivemq.client.mqtt.MqttClient;
+import com.hivemq.client.mqtt.mqtt3.Mqtt3AsyncClient;
+import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
+import com.hrules.charter.CharterLine;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
-
-    private static final String broker = "tcp://172.16.72.231:1883";
-    private static final String client_id = "";
-    private MqttHandler mqttHandler;
-    private SharedPreferences sharedPreferences;
-    Switch souitche;
-    TextView tvTemperature;
-    TextView tvHeure;
+    Mqtt5Client client;
+    TextView tvTemperature, tvHumidite, tvPlante;
+    Handler handler = new Handler();
+    CharterLine lineTemp;
+    CharterLine lineHum;
+    List<Temperature> valuesTemp;
+    float[] valuesHum;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //trucs généré de base par l'appli
         super.onCreate(savedInstanceState);
+
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -48,84 +61,161 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        //sharedPrefs
-        sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        //get des éléments de la view
+        tvTemperature = findViewById(R.id.tvTemperature);
+        tvHumidite = findViewById(R.id.tvHumidite);
+        tvPlante = findViewById(R.id.tvPlante);
+        lineTemp = findViewById(R.id.charter_temp);
+        lineHum = findViewById(R.id.charter_hum);
 
         //mqtt
-        mqttHandler = new MqttHandler();
-        mqttHandler.connect(broker, client_id);
-        subscribeToTopics(Arrays.asList("topicTemperature", "topicHeure"));
+        client = Mqtt5Client.builder()
+                .identifier(UUID.randomUUID().toString())
+                .serverHost("172.16.72.231")
+                .serverPort(1883)
+                .simpleAuth()
+                .username("fannie")
+                .password("q".getBytes())
+                .applySimpleAuth()
+                .build();
 
-        //get des éléments de la view
-        souitche = findViewById(R.id.swLangue);
-        tvHeure = findViewById(R.id.tvHeure);
-        tvTemperature = findViewById(R.id.tvTemperature);
+        client.toAsync().connect()
+                .whenComplete((connAck, throwable) -> {
+                    if (throwable != null) {
+                        Toast.makeText(this, "Erreur", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Log.d("Succès!", "La connexion a réussi!");
+                        souscrire();
+                    }
+                });
 
-        //changer la langue
-        String sharedLanguage = sharedPreferences.getString("langue", null);
-        if (sharedLanguage != null) {
-            changeLanguage(sharedLanguage);
-        }
+        //charts
+        remplirChartTemp();
+        //remplirChartHum();
 
-        souitche.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+    }
+
+    public void remplirChartTemp() {
+        InterfaceServeur serveur = RetrofitInstance.getInstance().create(InterfaceServeur.class);
+        Call<List<Temperature>> call = serveur.getTemperatures();
+
+        call.enqueue(new Callback<List<Temperature>>() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    changeLanguage("fr");
-                } else {
-                    changeLanguage("en");
-                }
+            public void onResponse(Call<List<Temperature>> call, Response<List<Temperature>> response) {
+                valuesTemp = response.body();
+               /* lineTemp.setValues(valuesTemp);
+                lineTemp.setAnimInterpolator(new BounceInterpolator());
+                lineTemp.setShowGridLines(true);
+                lineTemp.show();*/
+            }
+
+            @Override
+            public void onFailure(Call<List<Temperature>> call, Throwable t) {
+                Log.d("Erreur", "La communication avec la bdd a échouée.");
             }
         });
+    }
+
+    /*public void remplirChartHum() {
+        InterfaceServeur serveur = RetrofitInstance.getInstance().create(InterfaceServeur.class);
+        Call<float[]> call = serveur.getTemperatures();
+
+        call.enqueue(new Callback<float[]>() {
+            @Override
+            public void onResponse(Call<float[]> call, Response<float[]> response) {
+                valuesHum = response.body();
+                lineHum.setValues(valuesHum);
+                lineHum.setAnimInterpolator(new BounceInterpolator());
+                lineHum.setShowGridLines(true);
+                lineHum.show();
+            }
+
+            @Override
+            public void onFailure(Call<float[]> call, Throwable t) {
+                Log.d("Erreur", "La communication avec la bdd a échouée.");
+            }
+        });
+    }*/
+
+    public void souscrire()
+    {
+        String sec, mouille;
+        sec = getString(R.string.seche);
+        mouille = getString(R.string.mouille);
+        client.toAsync().subscribeWith()
+                .topicFilter("topicTemperature")
+                .callback(publish -> {
+                    String t = new String(publish.getPayloadAsBytes(), StandardCharsets.UTF_8);
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            tvTemperature.setText(t.replaceAll("\\[|\\]", ""));
+                        }
+                    });
+                })
+                .send()
+                .whenComplete((subAck, throwable) -> {
+                    if (throwable != null) {
+
+                    //    Toast.makeText(this, "Erreur", Toast.LENGTH_SHORT).show();
+                    } else {
+
+                      //  Toast.makeText(this, "SUCCESS", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        client.toAsync().subscribeWith()
+                .topicFilter("topicAir")
+                .callback(publish -> {
+                    String t = new String(publish.getPayloadAsBytes(), StandardCharsets.UTF_8);
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            tvHumidite.setText(t.replaceAll("\\[|\\]", ""));
+                        }
+                    });
+                })
+                .send()
+                .whenComplete((subAck, throwable) -> {
+                    if (throwable != null) {
+
+                        //    Toast.makeText(this, "Erreur", Toast.LENGTH_SHORT).show();
+                    } else {
+
+                        //  Toast.makeText(this, "SUCCESS", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        client.toAsync().subscribeWith()
+                .topicFilter("topicHumidite")
+                .callback(publish -> {
+                    String t = new String(publish.getPayloadAsBytes(), StandardCharsets.UTF_8);
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Double i = Double.parseDouble(t.replaceAll("\\[|\\]", ""));
+                            if(i < 10)
+                                tvPlante.setText(sec);
+                            else
+                                tvPlante.setText(mouille);
+                        }
+                    });
+                })
+                .send()
+                .whenComplete((subAck, throwable) -> {
+                    if (throwable != null) {
+
+                        //    Toast.makeText(this, "Erreur", Toast.LENGTH_SHORT).show();
+                    } else {
+
+                        //  Toast.makeText(this, "SUCCESS", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     @Override
     protected void onDestroy(){
-        mqttHandler.disconnect();
         super.onDestroy();
-    }
-
-    private void publishMessage(String topic, String message) {
-        Toast.makeText(this, "Publishing message", Toast.LENGTH_SHORT).show();
-        mqttHandler.publish(topic, message);
-    }
-
-    private void subscribeToTopics(List<String> topics) {
-        for (String topic : topics) {
-            subscribeToTopic(topic);
-        }
-    }
-
-    private void subscribeToTopic(String topic) {
-        mqttHandler.subscribe(topic, new IMqttMessageListener() {
-            @Override
-            public void messageArrived(String topic, MqttMessage message) throws Exception {
-
-                String temperatureMessage = new String(message.getPayload(), "UTF-8");
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String temp = temperatureMessage + " °C";
-                        tvTemperature.setText(temp);
-                    }
-                });
-            }
-        });
-    }
-
-    private void changeLanguage(String languageCode) {
-
-        sharedPreferences.edit().putString("langue", languageCode).apply();
-
-        Locale locale = new Locale(languageCode);
-        Locale.setDefault(locale);
-        Resources resources = getResources();
-        Configuration config = resources.getConfiguration();
-        config.setLocale(locale);
-        resources.updateConfiguration(config, resources.getDisplayMetrics());
-
-        recreate();
     }
 
 }

@@ -4,6 +4,9 @@
     <string name="sous_titre">But not yours...</string>
     <string name="_switch">Switch</string>
     <string name="degage">None of this is your business!</string>
-    <string name="heure">Time in our community :</string>
-    <string name="temperature">Our temperature :</string>
+    <string name="temperature">Temperature in our community :</string>
+    <string name="humidity">Our community\'s air humidity level :</string>
+    <string name="plantes">Our plants are </string>
+    <string name="seche">dry !</string>
+    <string name="mouille">humid !</string>
 </resources>

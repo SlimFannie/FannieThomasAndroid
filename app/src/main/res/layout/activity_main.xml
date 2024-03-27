@@ -10,6 +10,12 @@
     android:padding="20dp"
     tools:context=".MainActivity">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+
     <TextView
         android:id="@+id/tvBienvenue"
         android:layout_width="match_parent"
@@ -29,17 +35,6 @@
         android:text="@string/sous_titre"
         android:textColor="@color/foreground" />
 
-    <Switch
-        android:id="@+id/swLangue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingVertical="20dp"
-        android:switchMinWidth="50dp"
-        android:switchPadding="5dp"
-        android:text="@string/_switch"
-        android:textColor="@color/foreground"
-        android:textSize="14sp" />
-
     <TextView
         android:id="@+id/tvDegage"
         android:layout_width="match_parent"
@@ -49,34 +44,6 @@
         android:text="@string/degage"
         android:textColor="@color/foreground"
         android:textSize="20sp" />
-
-    <LinearLayout
-        android:id="@+id/llHeure"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:background="@color/accent1"
-        android:orientation="horizontal"
-        android:paddingVertical="10dp">
-
-        <TextView
-            android:id="@+id/tvTitreHeure"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:paddingStart="5dp"
-            android:text="@string/heure"
-            android:textColor="@color/accent2"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/tvHeure"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:paddingStart="5dp"
-            android:textColor="@color/accent2"
-            android:textSize="16sp" />
-    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/llTemperature"
@@ -107,4 +74,77 @@
 
     </LinearLayout>
 
-</LinearLayout>
+    <LinearLayout
+        android:id="@+id/llHumidite"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="10dp"
+        android:background="@color/accent1"
+        android:orientation="horizontal"
+        android:paddingVertical="10dp">
+
+        <TextView
+            android:id="@+id/tvTitreHumidite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="5dp"
+            android:text="@string/humidity"
+            android:textColor="@color/accent2"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tvHumidite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingStart="5dp"
+            android:textColor="@color/accent2"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llplantes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="10dp"
+        android:background="@color/accent1"
+        android:orientation="horizontal"
+        android:paddingVertical="10dp">
+
+        <TextView
+            android:id="@+id/tvTitrePlante"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="5dp"
+            android:text="@string/plantes"
+            android:textColor="@color/accent2"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tvPlante"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingStart="5dp"
+            android:textColor="@color/accent2"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" />
+
+    <com.hrules.charter.CharterLine
+        android:id="@+id/charter_temp"
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent" />
+
+        <com.hrules.charter.CharterLine
+            android:id="@+id/charter_hum"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>

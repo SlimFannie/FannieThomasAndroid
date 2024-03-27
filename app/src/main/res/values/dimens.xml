@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="default_strokeSize">2dp</dimen>
+    <dimen name="default_indicatorSize">6dp</dimen>
+    <dimen name="default_indicatorStrokeSize">1dp</dimen>
+    <dimen name="default_barMargin">2dp</dimen>
+    <dimen name="default_labelSize">10sp</dimen>
+    <dimen name="default_markerStrokeSize">1dp</dimen>
+    <dimen name="default_separatorStrokeSize">0dp</dimen>
+    <dimen name="default_markerWidthCorrection">0dp</dimen>
+    <dimen name="default_barMinHeightCorrection">2dp</dimen>
+    <dimen name="default_gridLinesStrokeSize">1dp</dimen>
+</resources>
