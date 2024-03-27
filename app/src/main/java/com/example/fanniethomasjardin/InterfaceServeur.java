@@ -11,6 +11,6 @@ public interface InterfaceServeur {
     Call<List<Temperature>> getTemperatures();
 
     @GET("getHumidite.php")
-    Call<float[]> getHumidite();
+    Call<List<Humidite>> getHumidite();
 
 }

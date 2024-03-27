@@ -27,6 +27,7 @@ import com.hivemq.client.mqtt.MqttClient;
 import com.hivemq.client.mqtt.mqtt3.Mqtt3AsyncClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hrules.charter.CharterLine;
+import com.hrules.charter.CharterXLabels;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -41,10 +42,16 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     Mqtt5Client client;
-    TextView tvTemperature, tvHumidite, tvPlante;
+    TextView tvTemperature, tvHumidite, tvPlante, tvAlerte;
+    Button btMusic;
+    Boolean music;
     Handler handler = new Handler();
     CharterLine lineTemp;
+    CharterXLabels lineTempsX;
+    String[] temp;
+    String[] hum;
     CharterLine lineHum;
+    CharterXLabels lineHumX;
     List<Temperature> valuesTemp;
     float[] valuesHum;
 
@@ -65,8 +72,11 @@ public class MainActivity extends AppCompatActivity {
         tvTemperature = findViewById(R.id.tvTemperature);
         tvHumidite = findViewById(R.id.tvHumidite);
         tvPlante = findViewById(R.id.tvPlante);
+        tvAlerte = findViewById(R.id.tvAlerte);
         lineTemp = findViewById(R.id.charter_temp);
-        lineHum = findViewById(R.id.charter_hum);
+        lineTempsX = findViewById(R.id.xlabel);
+        btMusic = findViewById(R.id.btSon);
+        music = false;
 
         //mqtt
         client = Mqtt5Client.builder()
@@ -91,57 +101,61 @@ public class MainActivity extends AppCompatActivity {
 
         //charts
         remplirChartTemp();
-        //remplirChartHum();
+
+        //bouton son
+        btMusic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!music) {
+                    publishSon("true");
+                }
+            }
+        });
 
     }
 
     public void remplirChartTemp() {
         InterfaceServeur serveur = RetrofitInstance.getInstance().create(InterfaceServeur.class);
-        Call<List<Temperature>> call = serveur.getTemperatures();
+        Call<List<Humidite>> call = serveur.getHumidite();
 
-        call.enqueue(new Callback<List<Temperature>>() {
+        call.enqueue(new Callback<List<Humidite>>() {
             @Override
-            public void onResponse(Call<List<Temperature>> call, Response<List<Temperature>> response) {
-                valuesTemp = response.body();
-               /* lineTemp.setValues(valuesTemp);
-                lineTemp.setAnimInterpolator(new BounceInterpolator());
-                lineTemp.setShowGridLines(true);
-                lineTemp.show();*/
+            public void onResponse(Call<List<Humidite>> call, Response<List<Humidite>> response) {
+                List<Humidite> valuesHum = response.body();
+                if (valuesHum != null) {
+
+                    float[] humidites = new float[valuesHum.size()];
+                    String[] dates = new String[valuesHum.size()];
+                    for (int i = 0; i < valuesHum.size(); i++) {
+                        Humidite humidite = valuesHum.get(i);
+                        humidites[i] = humidite.getHumidite();
+                        dates[i] = humidite.getDate();
+                    }
+                    // charter_line_XLabel
+                    lineTempsX.setStickyEdges(true);
+                    lineTempsX.setValues(dates);
+                    lineTemp.setValues(humidites);
+                    lineTemp.setAnimInterpolator(new BounceInterpolator());
+                    lineTemp.setShowGridLines(true);
+                    lineTemp.show();
+
+                }
             }
 
             @Override
-            public void onFailure(Call<List<Temperature>> call, Throwable t) {
+            public void onFailure(Call<List<Humidite>> call, Throwable t) {
                 Log.d("Erreur", "La communication avec la bdd a échouée.");
             }
         });
     }
 
-    /*public void remplirChartHum() {
-        InterfaceServeur serveur = RetrofitInstance.getInstance().create(InterfaceServeur.class);
-        Call<float[]> call = serveur.getTemperatures();
-
-        call.enqueue(new Callback<float[]>() {
-            @Override
-            public void onResponse(Call<float[]> call, Response<float[]> response) {
-                valuesHum = response.body();
-                lineHum.setValues(valuesHum);
-                lineHum.setAnimInterpolator(new BounceInterpolator());
-                lineHum.setShowGridLines(true);
-                lineHum.show();
-            }
-
-            @Override
-            public void onFailure(Call<float[]> call, Throwable t) {
-                Log.d("Erreur", "La communication avec la bdd a échouée.");
-            }
-        });
-    }*/
-
     public void souscrire()
     {
-        String sec, mouille;
+        String sec, mouille, red_alert, no_alert;
         sec = getString(R.string.seche);
         mouille = getString(R.string.mouille);
+        red_alert = getResources().getString(R.string.red_alert);
+        no_alert = getResources().getString(R.string.no_alert);
         client.toAsync().subscribeWith()
                 .topicFilter("topicTemperature")
                 .callback(publish -> {
@@ -209,6 +223,40 @@ public class MainActivity extends AppCompatActivity {
                     } else {
 
                         //  Toast.makeText(this, "SUCCESS", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        client.toAsync().subscribeWith()
+                .topicFilter("topicMouv")
+                .callback(publish -> {
+                    String t = new String(publish.getPayloadAsBytes(), StandardCharsets.UTF_8);
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.d("Log", t);
+                            tvAlerte.setText(red_alert);
+                        }
+                    });
+                })
+                .send()
+                .whenComplete((subAck, throwable) -> {
+                    if (throwable != null) {
+                    } else {
+                        tvAlerte.setText(no_alert);
+                    }
+                });
+    }
+
+    private void publishSon(String muse){
+        client.toAsync().publishWith()
+                .topic("topicSon")
+                .payload(muse.getBytes())
+                .send()
+                .whenComplete((publish, throwable) -> {
+                    if (throwable != null) {
+                        Log.d("Erreur", throwable.toString());
+                    } else {
+                        Log.d("Youpi!", muse.getBytes().toString() );
                     }
                 });
     }

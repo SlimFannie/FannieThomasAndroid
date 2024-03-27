@@ -133,18 +133,48 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/llalerte"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" />
+        android:layout_marginVertical="10dp"
+        android:background="@color/accent1"
+        android:orientation="horizontal"
+        android:paddingVertical="10dp">
 
-    <com.hrules.charter.CharterLine
-        android:id="@+id/charter_temp"
+        <TextView
+            android:id="@+id/tvAlerte"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textColor="@color/accent2"
+            android:textSize="24sp" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btSon"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/accent2"
+        android:text="@string/son_on"
+        app:icon="@drawable/ic_musique"
+        app:iconGravity="textStart" />
+
+    <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:orientation="vertical">
 
         <com.hrules.charter.CharterLine
-            android:id="@+id/charter_hum"
+            android:id="@+id/charter_temp"
             android:layout_width="fill_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="300dp" />
 
+        <com.hrules.charter.CharterXLabels
+            android:id="@+id/xlabel"
+            android:layout_width="fill_parent"
+            android:layout_height="20dp" />
     </LinearLayout>
+
+</LinearLayout>

@@ -5,20 +5,20 @@ import com.google.gson.annotations.SerializedName;
 public class Temperature {
 
     @SerializedName("temperature")
-    double temperature;
+    float temperature;
     @SerializedName("date")
     String date;
 
-    public Temperature(double temperature, String date) {
+    public Temperature(float temperature, String date) {
         this.temperature = temperature;
         this.date = date;
     }
 
-    public double getTemperature() {
+    public float getTemperature() {
         return temperature;
     }
 
-    public void setTemperature(double temperature) {
+    public void setTemperature(float temperature) {
         this.temperature = temperature;
     }
 

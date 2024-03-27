@@ -9,4 +9,8 @@
     <string name="plantes">Our plants are </string>
     <string name="seche">dry !</string>
     <string name="mouille">humid !</string>
+    <string name="red_alert">Red alert! Movement detected!</string>
+    <string name="no_alert">Everything is calm here...</string>
+    <string name="son_on">Turn up the music !</string>
+    <string name="son_off">Cut the music !</string>
 </resources>
