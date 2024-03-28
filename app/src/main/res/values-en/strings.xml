@@ -11,6 +11,5 @@
     <string name="mouille">humid !</string>
     <string name="red_alert">Red alert! Movement detected!</string>
     <string name="no_alert">Everything is calm here...</string>
-    <string name="son_on">Turn up the music !</string>
-    <string name="son_off">Cut the music !</string>
+    <string name="son_on">PROTECT OUR COMMUNITY !</string>
 </resources>

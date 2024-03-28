@@ -58,6 +58,7 @@
             android:id="@+id/tvTitreTemperature"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/commissioner"
             android:paddingStart="5dp"
             android:text="@string/temperature"
             android:textColor="@color/accent2"
@@ -87,6 +88,7 @@
             android:id="@+id/tvTitreHumidite"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/commissioner"
             android:paddingStart="5dp"
             android:text="@string/humidity"
             android:textColor="@color/accent2"
@@ -116,6 +118,7 @@
             android:id="@+id/tvTitrePlante"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/commissioner"
             android:paddingStart="5dp"
             android:text="@string/plantes"
             android:textColor="@color/accent2"
@@ -156,9 +159,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/accent2"
+        android:fontFamily="@font/commissioner"
         android:text="@string/son_on"
+        android:textStyle="bold"
         app:icon="@drawable/ic_musique"
-        app:iconGravity="textStart" />
+        app:iconGravity="textStart"
+        app:iconSize="24dp" />
 
     <LinearLayout
         android:layout_width="fill_parent"

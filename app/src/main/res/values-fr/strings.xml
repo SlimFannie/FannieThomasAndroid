@@ -11,6 +11,5 @@
     <string name="mouille">humides !</string>
     <string name="red_alert">Alerte rouge! Mouvement détecté!</string>
     <string name="no_alert">Tout est calme par ici...</string>
-    <string name="son_on">Démarrer la musique !</string>
-    <string name="son_off">Couper la musique !</string>
+    <string name="son_on">DÉFENDONS NOTRE COMMUNAUTÉ !</string>
 </resources>
